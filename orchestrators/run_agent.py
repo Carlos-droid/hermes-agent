@@ -20,6 +20,16 @@ Usage:
     response = agent.run_conversation("Tell me about the latest Python updates")
 """
 
+import sys
+import os
+from pathlib import Path
+
+# Fix for reorganized directory structure
+_root = Path(__file__).parent.parent
+sys.path.append(str(_root))
+sys.path.append(str(_root / "core"))
+sys.path.append(str(_root / "benchmarks"))
+
 import asyncio
 import base64
 import concurrent.futures
@@ -46,7 +56,7 @@ import fire
 from datetime import datetime
 from pathlib import Path
 
-from hermes_constants import get_hermes_home
+from core.hermes_constants import get_hermes_home
 
 # Load .env from ~/.hermes/.env first, then project root as dev fallback.
 # User-managed env files should override stale shell exports on restart.
@@ -67,7 +77,7 @@ else:
 
 
 # Import our tool system
-from model_tools import (
+from benchmarks.model_tools import (
     get_tool_definitions,
     get_toolset_for_tool,
     handle_function_call,

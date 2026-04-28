@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-04-28T11:04:13.612670+00:00",
+  "session_id": "session_20260428T102504_73eb98",
+  "job_id": null,
+  "model": "mistral:7b",
+  "phase": "investigator",
+  "auxiliaries": [
+    "smart-rag"
+  ],
+  "status": "running"
+}

@@ -82,6 +82,7 @@ from tools.browser_providers.browserbase import BrowserbaseProvider
 from tools.browser_providers.browser_use import BrowserUseProvider
 from tools.browser_providers.firecrawl import FirecrawlProvider
 from tools.tool_backend_helpers import normalize_browser_cloud_provider
+from tools.browser_skills_tool import load_skills
 
 # Camofox local anti-detection browser backend (optional).
 # When CAMOFOX_URL is set, all browser operations route through the
@@ -1307,6 +1308,7 @@ def _run_browser_command(
                 stderr=stderr_fd,
                 stdin=subprocess.DEVNULL,
                 env=browser_env,
+                shell=(sys.platform == "win32"),
             )
         finally:
             os.close(stdout_fd)
@@ -1321,9 +1323,9 @@ def _run_browser_command(
                            command, timeout, task_id, task_socket_dir)
             return {"success": False, "error": f"Command timed out after {timeout} seconds"}
 
-        with open(stdout_path, "r") as f:
+        with open(stdout_path, "r", encoding="utf-8") as f:
             stdout = f.read()
-        with open(stderr_path, "r") as f:
+        with open(stderr_path, "r", encoding="utf-8") as f:
             stderr = f.read()
         returncode = proc.returncode
 
@@ -1400,6 +1402,38 @@ def _run_browser_command(
     except Exception as e:
         logger.warning("browser '%s' exception: %s", command, e, exc_info=True)
         return {"success": False, "error": str(e)}
+
+
+def _heuristic_filter(snapshot_text: str, max_chars: int = 6000) -> str:
+    """
+    Intelligently reduce snapshot size by preserving interactive elements and headings.
+    Inspired by browser-use. Keeps lines with [ref=e] and headings, trims long static text.
+    """
+    if len(snapshot_text) <= max_chars:
+        return snapshot_text
+
+    lines = snapshot_text.split('\n')
+    filtered_lines = []
+    
+    # Always keep headings, interactive elements, and short paragraphs
+    for line in lines:
+        lower_line = line.lower()
+        is_interactive = "[ref=e" in line
+        is_heading = "heading" in lower_line
+        is_input = "combobox" in lower_line or "textbox" in lower_line
+        is_short = len(line.strip()) < 100
+        
+        if is_interactive or is_heading or is_input or is_short:
+            filtered_lines.append(line)
+        else:
+            # For long static text, we only keep a snippet if we have space
+            if len(filtered_lines) < 200: # heuristic limit for static lines
+                filtered_lines.append(line[:200] + "...")
+
+    result = '\n'.join(filtered_lines)
+    if len(result) > max_chars:
+        return _truncate_snapshot(result, max_chars)
+    return result
 
 
 def _extract_relevant_content(
@@ -1617,6 +1651,10 @@ def browser_navigate(url: str, task_id: Optional[str] = None) -> str:
                 snap_data = snap_result.get("data", {})
                 snapshot_text = snap_data.get("snapshot", "")
                 refs = snap_data.get("refs", {})
+                
+                # Apply heuristic filter to the auto-snapshot
+                snapshot_text = _heuristic_filter(snapshot_text)
+                
                 if len(snapshot_text) > SNAPSHOT_SUMMARIZE_THRESHOLD:
                     snapshot_text = _truncate_snapshot(snapshot_text)
                 response["snapshot"] = snapshot_text
@@ -1666,7 +1704,11 @@ def browser_snapshot(
         snapshot_text = data.get("snapshot", "")
         refs = data.get("refs", {})
         
-        # Check if snapshot needs summarization
+        # Apply heuristic filtering to save tokens before LLM summarization/truncation
+        if not full:
+            snapshot_text = _heuristic_filter(snapshot_text)
+        
+        # Check if snapshot still needs summarization based on task
         if len(snapshot_text) > SNAPSHOT_SUMMARIZE_THRESHOLD and user_task:
             snapshot_text = _extract_relevant_content(snapshot_text, user_task)
         elif len(snapshot_text) > SNAPSHOT_SUMMARIZE_THRESHOLD:

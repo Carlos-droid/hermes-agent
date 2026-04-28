@@ -1015,11 +1015,14 @@ def _try_nous(vision: bool = False) -> Tuple[Optional[OpenAI], Optional[str]]:
 
 
 def _read_main_model() -> str:
-    """Read the user's configured main model from config.yaml.
+    """Read the user's configured main model.
 
-    config.yaml model.default is the single source of truth for the active
-    model. Environment variables are no longer consulted.
+    Prioritizes HERMES_FORCE_MODEL environment variable for dynamic ensemble runs.
     """
+    forced = os.getenv("HERMES_FORCE_MODEL")
+    if forced:
+        return forced.strip()
+
     try:
         from hermes_cli.config import load_config
         cfg = load_config()
@@ -1300,9 +1303,9 @@ def _get_provider_chain() -> List[tuple]:
     on the ``_try_*`` functions are picked up correctly.
     """
     return [
+        ("local/custom", _try_custom_endpoint),
         ("openrouter", _try_openrouter),
         ("nous", _try_nous),
-        ("local/custom", _try_custom_endpoint),
         ("openai-codex", _try_codex),
         ("api-key", _resolve_api_key_provider),
     ]

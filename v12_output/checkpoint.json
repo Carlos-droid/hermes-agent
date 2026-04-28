@@ -1,0 +1,29 @@
+{
+  "session_id": "session_20260428T102504_73eb98",
+  "jobs": {
+    "9e7c": {
+      "model": "mistral:7b",
+      "state": "failed",
+      "phases": [],
+      "word_count": 0,
+      "timings": {},
+      "retries": 4,
+      "error": "Watchdog: inactividad > 300s, modelo detenido",
+      "auxiliaries": {},
+      "tools_details": {},
+      "trace_id": "v12_32510c07"
+    },
+    "142a": {
+      "model": "gemma2:9b",
+      "state": "failed",
+      "phases": [],
+      "word_count": 0,
+      "timings": {},
+      "retries": 4,
+      "error": "Watchdog: inactividad > 300s, modelo detenido",
+      "auxiliaries": {},
+      "tools_details": {},
+      "trace_id": "v12_2180544e"
+    }
+  }
+}

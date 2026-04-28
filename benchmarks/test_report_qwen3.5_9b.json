@@ -1,0 +1,9 @@
+{
+    "model": "qwen3.5_9b",
+    "duration_s": 332.7151358127594,
+    "total_tokens": 2485.6,
+    "tps": 7.470655021233569,
+    "vram_avg_mb": 0,
+    "vram_max_mb": 0,
+    "output_length": 12798
+}

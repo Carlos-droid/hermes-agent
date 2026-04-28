@@ -25,6 +25,46 @@ Use any model you want — [Nous Portal](https://portal.nousresearch.com), [Open
 <tr><td><b>Research-ready</b></td><td>Batch trajectory generation, Atropos RL environments, trajectory compression for training the next generation of tool-calling models.</td></tr>
 </table>
 
+## Ecosystem Orchestration (Smart-RAG Integration v8.5)
+
+Hermes is configured as the **Frontier Planner** for the **Smart-RAG Editorial System v8.5**, a state-of-the-art hybrid framework for generating high-fidelity, multi-part collections (Naval and Business niches).
+
+### 🧠 Swarm Handoff Architecture (v8.5 Oracle Flex)
+- **Stateful Orchestration**: Powered by **LangGraph**, the workflow uses a "Handoff" mechanism. The system passes an immutable State Dictionary between specialized Local Workers.
+- **Fail-Fast & AgentFixer**: Any failure during execution immediately returns the state to the Hermes Frontier Node, which acts as the Executive Supervisor, clearing errors and re-routing.
+- **Local Workers (TurboQuant/ITQ3)**: 
+  - *Researcher* (`phi4`): Queries the mxbai-backed RAG engine.
+  - *Writer* (`qwen2.5:14b`): Assembles drafts using iterative chunking.
+  - *Corrector* (`gemma4`): Ensures grammar using RAE integrations.
+  - *Translator* (`translategemma:12b`): High-fidelity exports to EN, RU, ZH, AR.
+- **Cost-Optimized Auditing**: Massive Context Validations (Fact-Checking & Semantic Flow) are delegated to the **Gemini Auditor Node**. This node leverages **Gemini Flex Inference** and **Context Caching**, protected by `tenacity` retry logic, yielding a 75-90% reduction in API costs.
+
+#### 🗺️ V8.5 Swarm Routing Graph
+```mermaid
+graph TD
+    __start__([START]) --> frontier
+    
+    frontier[🧠 Frontier Node] --> router{Handoff Router}
+    
+    router -- "state: inicio" --> researcher[🔍 Researcher phi4]
+    researcher --> router
+    
+    router -- "state: investigado" --> writer[✍️ Writer qwen2.5]
+    writer --> router
+    
+    router -- "state: redactado" --> gemini_auditor[🛡️ Gemini Auditor flash]
+    gemini_auditor --> router
+    
+    router -- "state: auditado_gemini" --> corrector[⚖️ Corrector gemma4]
+    corrector --> router
+    
+    router -- "state: corregido" --> translator[🌐 Translator translategemma]
+    translator --> router
+    
+    router -- "state: error_critico | traducido" --> frontier
+    router -- "END" --> __end__([END])
+```
+
 ---
 
 ## Quick Install

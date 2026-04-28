@@ -1,0 +1,77 @@
+{
+  "session_id": "session_20260428T102504_73eb98",
+  "started_at": "2026-04-28T10:25:04.432781+00:00",
+  "models": [
+    "qwen2.5:7b",
+    "llama3.1:8b",
+    "mistral:7b",
+    "gemma2:9b",
+    "phi3.5:latest"
+  ],
+  "jobs": {
+    "5eca": {
+      "model": "qwen2.5:7b",
+      "state": "done",
+      "phases": [
+        "investigator",
+        "writer",
+        "corrector"
+      ],
+      "word_count": 1215,
+      "timings": {
+        "total": 282.08
+      },
+      "retries": 0,
+      "error": null,
+      "auxiliaries": {
+        "investigator": [
+          "smart-rag"
+        ],
+        "writer": [
+          "web"
+        ],
+        "corrector": [
+          "rae",
+          "file"
+        ],
+        "judge": [
+          "google/gemini-2.0-flash-lite-001"
+        ]
+      },
+      "tools_details": {
+        "investigator": {
+          "tool": "smart-rag",
+          "model": "qwen2.5:7b",
+          "description": "RAG sobre base de conocimiento naval"
+        },
+        "writer": {
+          "tool": "web",
+          "model": "qwen2.5:7b",
+          "description": "Búsqueda web para enriquecer contenido"
+        },
+        "corrector": {
+          "tool": "rae, file",
+          "model": "qwen2.5:7b",
+          "description": "Corrección gramatical y estilo con RAE"
+        },
+        "judge": {
+          "tool": "google/gemini-2.0-flash-lite-001",
+          "role": "external auditor"
+        }
+      },
+      "trace_id": "v12_e21793d7"
+    },
+    "a9fa": {
+      "model": "llama3.1:8b",
+      "state": "failed",
+      "phases": [],
+      "word_count": 0,
+      "timings": {},
+      "retries": 4,
+      "error": "Watchdog: inactividad > 300s, modelo detenido",
+      "auxiliaries": {},
+      "tools_details": {},
+      "trace_id": "v12_88494a87"
+    }
+  }
+}

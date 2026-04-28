@@ -1,0 +1,9 @@
+{
+    "model": "mistral-nemo_latest",
+    "duration_s": 0.2988276481628418,
+    "total_tokens": 45.5,
+    "tps": 152.26168087099302,
+    "vram_avg_mb": 0,
+    "vram_max_mb": 0,
+    "output_length": 215
+}
